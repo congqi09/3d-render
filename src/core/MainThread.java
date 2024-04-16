@@ -25,6 +25,7 @@ public class MainThread extends JFrame implements KeyListener {
     public static int frameIndex;
     public static int frameInterval = 33; //ms
     public static int sleepTime;
+    public static int avgSleepTime;
     public static int framePerSecond;
     public static long lastDraw;
     public static double thisTime, lastTime;
@@ -82,9 +83,10 @@ public class MainThread extends JFrame implements KeyListener {
             if (frameIndex % 30 == 0) {
                 thisTime = System.currentTimeMillis();
                 framePerSecond = (int)(1000/((thisTime-lastTime)/30));
+                avgSleepTime = sleepTime/30;
                 lastTime = thisTime;
+                sleepTime = 0;
             }
-            sleepTime = 0;
             while (System.currentTimeMillis() - lastDraw < frameInterval) {
                 try {
                     Thread.sleep(1);
@@ -98,7 +100,7 @@ public class MainThread extends JFrame implements KeyListener {
             // draw the analytics numbers
             Graphics2D g2 = (Graphics2D) screenBuffer.getGraphics();
             g2.setColor(Color.BLACK);
-            g2.drawString("FPS: " + framePerSecond + "   " + "Thread Sleep: " + sleepTime + "ms   ", 5, 15);
+            g2.drawString("FPS: " + framePerSecond + "   " + "Thread Sleep: " + avgSleepTime + "ms   ", 5, 15);
 
             panel.getGraphics().drawImage(screenBuffer, 0, 0, this);
         }

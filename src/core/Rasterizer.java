@@ -36,6 +36,7 @@ public class Rasterizer {
 
     public static void rasterize() {
         transformVertices();
+        if (testHidden()) return;
         scanTriangle();
         renderTriangle();
     }
@@ -60,6 +61,26 @@ public class Rasterizer {
             updatedVertices[i].y = cosX*y - sinX*z;
             updatedVertices[i].z = sinX*y + cosX*z;
         }
+    }
+
+    public static boolean testHidden() {
+        boolean allBehindClippingPlane = true;
+        for (int i = 0; i < verticesCount; i++) {
+            if (updatedVertices[i].z >= 0.01f) {
+                allBehindClippingPlane = false;
+                break;
+            }
+        }
+        if (allBehindClippingPlane)
+            return true;
+
+        Vector3D edge1 = new Vector3D(updatedVertices[1]);
+        edge1.subtract(updatedVertices[0]);
+        Vector3D edge2 = new Vector3D(updatedVertices[2]);
+        edge2.subtract(updatedVertices[0]);
+        Vector3D surfaceNormal = edge1.cross(edge2);
+        float dotProduct = surfaceNormal.dot(updatedVertices[0]);
+        return dotProduct >= 0;
     }
 
     public static void scanTriangle() {

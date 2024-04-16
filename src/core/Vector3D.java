@@ -53,6 +53,10 @@ public class Vector3D {
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     }
 
+    public float dot(Vector3D v) {
+        return Vector3D.dot(this, v);
+    }
+
     public void cross(Vector3D v1, Vector3D v2) {
         this.x = v1.y*v2.z - v1.z*v2.y;
         this.y = v1.z*v2.x - v1.x*v2.z;

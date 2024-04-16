@@ -51,6 +51,14 @@ public class MainThread extends JFrame {
         screen = ((DataBufferInt)dest).getData();
 
         LookupTables.init();
+        Rasterizer.init();
+
+        // test a simple triangle
+        Vector3D[] myTriangle = new Vector3D[3];
+        // using the clockwise direction
+        myTriangle[0] = new Vector3D(0, 1, 2);
+        myTriangle[1] = new Vector3D(1, -1, 2);
+        myTriangle[2] = new Vector3D(-1, -1, 2);
 
         while (true) {
 
@@ -58,6 +66,11 @@ public class MainThread extends JFrame {
             for (int i = 1; i < screen.length; i<<=1) {
                 System.arraycopy(screen, 0, screen, i, min(i, screenSize - i));
             }
+
+            Rasterizer.triangleVertices = myTriangle;
+            Rasterizer.triangleColor = (255 << 16) | (128 << 8) | 0; // orange
+            Rasterizer.renderType = 0;
+            Rasterizer.rasterize();
 
             frameIndex++;
 

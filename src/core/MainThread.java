@@ -50,6 +50,8 @@ public class MainThread extends JFrame {
         DataBuffer dest = screenBuffer.getRaster().getDataBuffer();
         screen = ((DataBufferInt)dest).getData();
 
+        LookupTables.init();
+
         while (true) {
 
             screen[0] = (163 << 16) | (216 << 8) | 239; // skyblue

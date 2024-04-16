@@ -18,6 +18,11 @@ public class MainThread extends JFrame {
     public static BufferedImage screenBuffer;
 
     public static int frameIndex;
+    public static int frameInterval = 33; //ms
+    public static int sleepTime;
+    public static int framePerSecond;
+    public static long lastDraw;
+    public static double thisTime, lastTime;
 
     public static void main(String[] args) {
         new MainThread();
@@ -47,23 +52,6 @@ public class MainThread extends JFrame {
             int r_skyblue = 163, g_skyblue = 216, b_skyblue = 239;
             int r_orange = 255, g_orange = 128, b_orange = 0;
 
-            // full skyblue
-            for (int i = 0; i < screen.length; i++) {
-                screen[i] = (r_skyblue << 16) | (g_skyblue << 8) | b_skyblue;
-            }
-
-            // skyblue to orange
-            for (int i = 0; i < screen_w; i++) {
-                float t1 = Math.abs((float) (half_screen_w - i)/half_screen_w);
-                float t2 = 1f - t1;
-                int r = (int)(r_skyblue*t1 + r_orange*t2);
-                int g = (int)(g_skyblue*t1 + g_orange*t2);
-                int b = (int)(b_skyblue*t1 + b_orange*t2);
-                for (int j = 0; j < screen_h; j++) {
-                    screen[i+j*screen_w] = (r << 16) | (g << 8) | b;
-                }
-            }
-
             // rolling skyblue to orange
             for (int i = 0; i < screen_w; i++) {
                 int p = (i+frameIndex*8) % screen_w;
@@ -78,6 +66,27 @@ public class MainThread extends JFrame {
             }
 
             frameIndex++;
+
+            if (frameIndex % 30 == 0) {
+                thisTime = System.currentTimeMillis();
+                framePerSecond = (int)(1000/((thisTime-lastTime)/30));
+                lastTime = thisTime;
+            }
+            sleepTime = 0;
+            while (System.currentTimeMillis() - lastDraw < frameInterval) {
+                try {
+                    Thread.sleep(1);
+                    sleepTime++;
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            lastDraw = System.currentTimeMillis();
+
+            // draw the analytics numbers
+            Graphics2D g2 = (Graphics2D) screenBuffer.getGraphics();
+            g2.setColor(Color.BLACK);
+            g2.drawString("FPS: " + framePerSecond + "   " + "Thread Sleep: " + sleepTime + "ms   ", 5, 15);
 
             panel.getGraphics().drawImage(screenBuffer, 0, 0, this);
         }

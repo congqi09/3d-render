@@ -41,19 +41,33 @@ public class Rasterizer {
     }
 
     public static void transformVertices() {
-        // no transform for now
-        updatedVertices[0].set(triangleVertices[0]);
-        updatedVertices[1].set(triangleVertices[1]);
-        updatedVertices[2].set(triangleVertices[2]);
-
-        // easy projection formula
+        float x = 0, y = 0, z = 0;
+        float sinX, sinY, cosX, cosY;
+        sinY = LookupTables.sin[Camera.Y_angle];
+        cosY = LookupTables.cos[Camera.Y_angle];
+        sinX = LookupTables.sin[Camera.X_angle];
+        cosX = LookupTables.cos[Camera.X_angle];
         for (int i = 0; i < verticesCount; i++) {
-            vertices2D[i][0] = half_screen_w + updatedVertices[i].x * screenDistance / updatedVertices[i].z;
-            vertices2D[i][1] = half_screen_h - updatedVertices[i].y * screenDistance / updatedVertices[i].z;
+            x = triangleVertices[i].x - Camera.position.x;
+            y = triangleVertices[i].y - Camera.position.y;
+            z = triangleVertices[i].z - Camera.position.z;
+
+            updatedVertices[i].x = cosY*x - sinY*z;
+            updatedVertices[i].z = sinY*x + cosY*z;
+
+            z = updatedVertices[i].z;
+
+            updatedVertices[i].y = cosX*y - sinX*z;
+            updatedVertices[i].z = sinX*y + cosX*z;
         }
     }
 
     public static void scanTriangle() {
+        for (int i = 0; i < verticesCount; i++) {
+            vertices2D[i][0] = half_screen_w + updatedVertices[i].x * screenDistance / updatedVertices[i].z;
+            vertices2D[i][1] = half_screen_h - updatedVertices[i].y * screenDistance / updatedVertices[i].z;
+        }
+
         scanUpperPosition = screen_h;
         scanLowerPosition = -1;
 
@@ -104,7 +118,7 @@ public class Rasterizer {
     }
 
     public static void renderSolidTriangle() {  // single color
-        for (int i = scanUpperPosition; i <= scanLowerPosition; i++) {
+        for (int i = scanUpperPosition; i < scanLowerPosition; i++) {
             int x_left = xLeft[i]+i*screen_w;
             int x_right = xRight[i]+i*screen_w;
             for (int j = x_left; j <= x_right; j++) {

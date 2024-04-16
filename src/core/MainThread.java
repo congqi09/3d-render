@@ -58,12 +58,41 @@ public class MainThread extends JFrame implements KeyListener {
         Camera.init(0, 0, 0);
         addKeyListener(this);
 
-        // test a simple triangle
-        Vector3D[] myTriangle = new Vector3D[3];
-        // using the clockwise direction
-        myTriangle[0] = new Vector3D(0, 1, 2);
-        myTriangle[1] = new Vector3D(1, -1, 2);
-        myTriangle[2] = new Vector3D(-1, -1, 2);
+        // make a cube
+        float l = 0.5f;
+        Vector3D[] vertices = {
+                new Vector3D(-l, -l, -l + 2.5f),
+                new Vector3D(l, -l, -l  + 2.5f),
+                new Vector3D(l, l, -l   + 2.5f),
+                new Vector3D(-l, l, -l  + 2.5f),
+                new Vector3D(-l, -l, l  + 2.5f),
+                new Vector3D(l, -l, l   + 2.5f),
+                new Vector3D(l, l, l    + 2.5f),
+                new Vector3D(-l, l, l   + 2.5f),
+        };
+        int[] indices = {
+                0, 1, 2, 2, 3, 0,
+                1, 5, 6, 6, 2, 1,
+                5, 4, 7, 7, 6, 5,
+                4, 0, 3, 3, 7, 4,
+                3, 2, 6, 6, 7, 3,
+                4, 5, 1, 1, 0, 4
+        };
+        Vector3D[][] cube = {
+                new Vector3D[] {vertices[2], vertices[1], vertices[0]},
+                new Vector3D[] {vertices[0], vertices[3], vertices[2]},
+                new Vector3D[] {vertices[6], vertices[5], vertices[1]},
+                new Vector3D[] {vertices[1], vertices[2], vertices[6]},
+                new Vector3D[] {vertices[7], vertices[4], vertices[5]},
+                new Vector3D[] {vertices[5], vertices[6], vertices[7]},
+                new Vector3D[] {vertices[3], vertices[0], vertices[4]},
+                new Vector3D[] {vertices[4], vertices[7], vertices[3]},
+                new Vector3D[] {vertices[6], vertices[2], vertices[3]},
+                new Vector3D[] {vertices[3], vertices[7], vertices[6]},
+                new Vector3D[] {vertices[1], vertices[5], vertices[4]},
+                new Vector3D[] {vertices[4], vertices[0], vertices[1]}
+        };
+        int[] color = {0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0xFF00FF, 0x00FFFF};
 
         while (true) {
             Camera.update();
@@ -73,10 +102,12 @@ public class MainThread extends JFrame implements KeyListener {
                 System.arraycopy(screen, 0, screen, i, min(i, screenSize - i));
             }
 
-            Rasterizer.triangleVertices = myTriangle;
-            Rasterizer.triangleColor = (255 << 16) | (128 << 8) | 0; // orange
-            Rasterizer.renderType = 0;
-            Rasterizer.rasterize();
+            for (int i = 0; i < cube.length; i++) {
+                Rasterizer.triangleVertices = cube[i];
+                Rasterizer.triangleColor = color[i/2];
+                Rasterizer.renderType = 0;
+                Rasterizer.rasterize();
+            }
 
             frameIndex++;
 
